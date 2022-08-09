@@ -1,4 +1,5 @@
 import Project from "../models/Project.js";
+import Task from "../models/Tasks.js";
 
 //=> Get all projects
 const getProjects = async (req, res) => {
@@ -7,23 +8,6 @@ const getProjects = async (req, res) => {
     status: "success",
     data: projects,
   });
-};
-
-//=> Create a new Project
-const newProject = async (req, res) => {
-  const project = new Project(req.body);
-  project.owner = req.user._id;
-
-  try {
-    const projectSaved = await project.save();
-    res.json({
-      status: "success",
-      data: projectSaved,
-    });
-  } catch (error) {
-    //TODO: Add message for show error
-    console.log(error);
-  }
 };
 
 //=> Get one Project
@@ -48,10 +32,33 @@ const getOneProject = async (req, res) => {
     });
   }
 
+  // Get tasks of project
+  const tasks = await Task.find().where("projects").equals(existsProject._id);
+
   res.json({
     status: "success",
-    data: existsProject,
+    data: {
+      existsProject,
+      tasks,
+    },
   });
+};
+
+//=> Create a new Project
+const newProject = async (req, res) => {
+  const project = new Project(req.body);
+  project.owner = req.user._id;
+
+  try {
+    const projectSaved = await project.save();
+    res.json({
+      status: "success",
+      data: projectSaved,
+    });
+  } catch (error) {
+    //TODO: Add message for show error
+    console.log(error);
+  }
 };
 
 //=> Update one Project
@@ -130,7 +137,25 @@ const addCollaborator = async (req, res) => {};
 
 const deleteCollaborator = async (req, res) => {};
 
-const getTasks = async (req, res) => {};
+// const getTasks = async (req, res) => {
+//   const { id } = req.params;
+
+//   const existsProject = await Project.findById(id);
+//   if (!project) {
+//     const error = new Error("El proyecto consultado no existe");
+//     return res.status(403).json({
+//       status: "error",
+//       message: error.message,
+//     });
+//   }
+
+//   // Validate owner of project or collaborator
+//   const tasks = await Task.find().where("project").equals(id);
+//   res.json({
+//     status: "success",
+//     data: tasks,
+//   });
+// };
 
 export {
   getProjects,
@@ -140,5 +165,5 @@ export {
   deleteProject,
   addCollaborator,
   deleteCollaborator,
-  getTasks,
+  // getTasks,
 };
