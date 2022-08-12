@@ -1,6 +1,7 @@
 import User from "../models/User.js";
 import generateId from "../helpers/generateId.js";
 import generateJWT from "../helpers/generateJWT.js";
+import { emailRegister } from "../helpers/email.js";
 
 const registerUser = async (req, res) => {
   // Validate duplicated register
@@ -18,10 +19,14 @@ const registerUser = async (req, res) => {
   try {
     const user = new User(req.body);
     user.token = generateId();
-    const userSaved = await user.save();
-    res.json({
+    await user.save();
+
+    // Send email to confirm account
+    emailRegister({ email: user.email, name: user.name, token: user.token });
+    res.status(201).json({
       status: "success",
-      data: userSaved,
+      message:
+        "Usuario creado correctamente. Revisa tu email para activar tu cuenta.",
     });
   } catch (error) {
     console.log(error);
@@ -91,7 +96,10 @@ const confirmUser = async (req, res) => {
       message: "Usuario confirmado correctamente",
     });
   } catch (error) {
-    console.log(error);
+    res.status(200).json({
+      status: "error",
+      message: error.message,
+    });
   }
 };
 
