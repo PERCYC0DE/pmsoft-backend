@@ -1,7 +1,7 @@
 import User from "../models/User.js";
 import generateId from "../helpers/generateId.js";
 import generateJWT from "../helpers/generateJWT.js";
-import { emailRegister } from "../helpers/email.js";
+import { emailRegister, emailResetPassword } from "../helpers/email.js";
 
 const registerUser = async (req, res) => {
   // Validate duplicated register
@@ -9,6 +9,7 @@ const registerUser = async (req, res) => {
   const existsUser = await User.findOne({ email });
 
   if (existsUser) {
+    console.log("Ya existe el usuario");
     const error = new Error("User already exists");
     return res.status(400).json({
       status: "error",
@@ -118,6 +119,14 @@ const resetPasswordUser = async (req, res) => {
   try {
     requestedUser.token = generateId();
     await requestedUser.save();
+
+    // Send email to user
+    emailResetPassword({
+      email: requestedUser.email,
+      name: requestedUser.name,
+      token: requestedUser.token,
+    });
+
     res.json({
       status: "success",
       message: "Hemos enviado un email con las instrucciones",
@@ -129,9 +138,10 @@ const resetPasswordUser = async (req, res) => {
 
 const validateToken = async (req, res) => {
   const { token } = req.params;
-
+  console.log(token);
   const tokenExists = await User.findOne({ token });
   if (tokenExists) {
+    console.log("Error");
     res.status(200).json({
       status: "success",
       message: "Token válido",
