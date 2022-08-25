@@ -33,13 +33,13 @@ const getOneProject = async (req, res) => {
   }
 
   // Get tasks of project
-  const tasks = await Task.find().where("projects").equals(existsProject._id);
+  // const tasks = await Task.find().where("projects").equals(existsProject._id);
 
   res.json({
     status: "success",
     data: {
       existsProject,
-      tasks,
+      // tasks,
     },
   });
 };

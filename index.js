@@ -11,19 +11,20 @@ const app = express();
 dotenv.config();
 connectDB();
 // Config CORS
-const whitelist = [process.env.FRONTEND_URL];
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (whitelist.includes(origin)) {
-      // Can go to the API
-      callback(null, true);
-    } else {
-      // Access Denied to the API
-      callback(new Error("Errors de CORS"));
-    }
-  },
-};
-app.use(cors(corsOptions));
+// const whitelist = [process.env.FRONTEND_URL];
+// const corsOptions = {
+//   origin: function (origin, callback) {
+//     if (whitelist.includes(origin)) {
+//       // Can go to the API
+//       callback(null, true);
+//     } else {
+//       // Access Denied to the API
+//       callback(new Error("Errors de CORS"));
+//     }
+//   },
+// };
+// app.use(cors(corsOptions));
+app.use(cors());
 // Middlewares
 app.use(express.json());
 
