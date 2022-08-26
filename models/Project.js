@@ -21,6 +21,12 @@ const ProjectSchema = mongoose.Schema(
       trim: true,
       required: true,
     },
+    tasks: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Task",
+      },
+    ],
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",

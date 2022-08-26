@@ -94,6 +94,7 @@ const editProject = async (req, res) => {
     res.json({
       status: "success",
       message: "Proyecto actualizado correctamente",
+      data: projectSaved,
     });
   } catch (error) {
     console.log(error);
