@@ -1,9 +1,13 @@
 import Project from "../models/Project.js";
 import Task from "../models/Tasks.js";
+import User from "../models/User.js";
 
 //=> Get all projects
 const getProjects = async (req, res) => {
-  const projects = await Project.find().where("owner").equals(req.user); // Get projects only of one owner user
+  const projects = await Project.find()
+    .where("owner")
+    .equals(req.user)
+    .select("-tasks"); // Get projects only of one owner user
   res.json({
     status: "success",
     data: projects,
@@ -14,7 +18,7 @@ const getProjects = async (req, res) => {
 const getOneProject = async (req, res) => {
   const { id } = req.params;
 
-  const existsProject = await Project.findById(id);
+  const existsProject = await Project.findById(id).populate("tasks");
 
   if (!existsProject) {
     const error = new Error("No se ha podido encontrar el proyecto solicitado");
@@ -134,7 +138,71 @@ const deleteProject = async (req, res) => {
   }
 };
 
-const addCollaborator = async (req, res) => {};
+// Search collaborator
+const searchCollaborator = async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email }).select(
+    "-confirmed -createdAt -password -token -updatedAt -__v"
+  );
+
+  if (!user) {
+    const error = new Error("El usuario no ha podido ser encontrado");
+    return res.status(404).json({
+      message: error.message,
+    });
+  }
+
+  res.json(user);
+};
+
+//*** FUNCTION TO ADD A COLLABORATOR */
+const addCollaborator = async (req, res) => {
+  const project = await Project.findById(req.params.id);
+
+  if (!project) {
+    const error = new Error("El proyecto buscado no existe");
+    return res.status(404).json({ message: error.message });
+  }
+
+  if (project.owner.toString() !== req.user._id.toString) {
+    const error = new Error("Acción no válidas");
+    return res.status(404).json({ message: error.message });
+  }
+
+  const { email } = req.body;
+  const user = await User.findOne({ email }).select(
+    "-confirmed -createdAt -password -token -updatedAt -__v"
+  );
+
+  if (!user) {
+    const error = new Error("El usuario no ha podido ser encontrado");
+    return res.status(404).json({
+      message: error.message,
+    });
+  }
+
+  // El colaborador no es el admin del proyecto
+  if (project.owner.toString() === user._id.toString()) {
+    const error = new Error("El creador del proyecto no puede ser colaborador");
+    return res.status(404).json({
+      message: error.message,
+    });
+  }
+
+  // Revisar que no este ya agregado al proyecto
+  if (project.collaborators.includes(user._id)) {
+    const error = new Error("El usuario ya pertenece al proyecto");
+    return res.status(404).json({
+      message: error.message,
+    });
+  }
+
+  // Add to the project
+  project.collaborators.push(user._id);
+  await project.save();
+
+  res.json({ message: "Colaborador agregado correctamente" });
+};
 
 const deleteCollaborator = async (req, res) => {};
 
@@ -166,5 +234,6 @@ export {
   deleteProject,
   addCollaborator,
   deleteCollaborator,
+  searchCollaborator,
   // getTasks,
 };
