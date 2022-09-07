@@ -25,6 +25,6 @@ router
   // .get("/tasks/:id", checkAuth, getTasks)
   .post("/collaborators", checkAuth, searchCollaborator)
   .post("/collaborators/:id", checkAuth, addCollaborator)
-  .post("/collaborators/:id", checkAuth, deleteCollaborator);
+  .post("/delete-collaborator/:id", checkAuth, deleteCollaborator);
 
 export default router;

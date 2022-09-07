@@ -2,7 +2,7 @@ import Project from "../models/Project.js";
 import Task from "../models/Tasks.js";
 import User from "../models/User.js";
 
-//=> Get all projects
+//** GET ALL PROJECTS */
 const getProjects = async (req, res) => {
   const projects = await Project.find()
     .where("owner")
@@ -14,11 +14,13 @@ const getProjects = async (req, res) => {
   });
 };
 
-//=> Get one Project
+//** GET ONE PROJECT */
 const getOneProject = async (req, res) => {
   const { id } = req.params;
 
-  const existsProject = await Project.findById(id).populate("tasks");
+  const existsProject = await Project.findById(id)
+    .populate("tasks")
+    .populate("collaborators", "name email");
 
   if (!existsProject) {
     const error = new Error("No se ha podido encontrar el proyecto solicitado");
@@ -48,7 +50,7 @@ const getOneProject = async (req, res) => {
   });
 };
 
-//=> Create a new Project
+//** CREATE A NEW PROJECT */
 const newProject = async (req, res) => {
   const project = new Project(req.body);
   project.owner = req.user._id;
@@ -65,7 +67,7 @@ const newProject = async (req, res) => {
   }
 };
 
-//=> Update one Project
+//** UPDATE A PROJECT */
 const editProject = async (req, res) => {
   const { id } = req.params;
 
@@ -105,7 +107,7 @@ const editProject = async (req, res) => {
   }
 };
 
-//=> Delete one Project
+//** DELETE ONE PROJECT */
 const deleteProject = async (req, res) => {
   const { id } = req.params;
 
@@ -138,7 +140,7 @@ const deleteProject = async (req, res) => {
   }
 };
 
-// Search collaborator
+//** SEARCH A COLLABORATOR */
 const searchCollaborator = async (req, res) => {
   const { email } = req.body;
   const user = await User.findOne({ email }).select(
@@ -155,7 +157,7 @@ const searchCollaborator = async (req, res) => {
   res.json(user);
 };
 
-//*** FUNCTION TO ADD A COLLABORATOR */
+//*** ADD A COLLABORATOR */
 const addCollaborator = async (req, res) => {
   const project = await Project.findById(req.params.id);
 
@@ -164,7 +166,7 @@ const addCollaborator = async (req, res) => {
     return res.status(404).json({ message: error.message });
   }
 
-  if (project.owner.toString() !== req.user._id.toString) {
+  if (project.owner.toString() !== req.user._id.toString()) {
     const error = new Error("Acción no válidas");
     return res.status(404).json({ message: error.message });
   }
@@ -204,7 +206,29 @@ const addCollaborator = async (req, res) => {
   res.json({ message: "Colaborador agregado correctamente" });
 };
 
-const deleteCollaborator = async (req, res) => {};
+//** DELETE COLLABORATOR */
+const deleteCollaborator = async (req, res) => {
+  const project = await Project.findById(req.params.id);
+
+  if (!project) {
+    const error = new Error("El proyecto buscado no existe");
+    return res.status(404).json({ message: error.message });
+  }
+
+  if (project.owner.toString() !== req.user._id.toString()) {
+    const error = new Error("Acción no válidas");
+    return res.status(404).json({ message: error.message });
+  }
+
+  const { email } = req.body;
+
+  // Can be removed
+  project.collaborators.pull(req.body.id);
+
+  await project.save();
+
+  res.json({ message: "Colaborador eliminado correctamente" });
+};
 
 // const getTasks = async (req, res) => {
 //   const { id } = req.params;
