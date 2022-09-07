@@ -242,7 +242,6 @@ const deleteCollaborator = async (req, res) => {
 //     });
 //   }
 
-//   // Validate owner of project or collaborator
 //   const tasks = await Task.find().where("project").equals(id);
 //   res.json({
 //     status: "success",
