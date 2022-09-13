@@ -3,6 +3,7 @@ import generateId from "../helpers/generateId.js";
 import generateJWT from "../helpers/generateJWT.js";
 import { emailRegister, emailResetPassword } from "../helpers/email.js";
 
+/* REGISTER A NEW USER */
 const registerUser = async (req, res) => {
   // Validate duplicated register
   const { email } = req.body;
@@ -35,6 +36,7 @@ const registerUser = async (req, res) => {
   }
 };
 
+/* AUTHENTICATE USER */
 const authenticateUser = async (req, res) => {
   const { email, password } = req.body;
 
@@ -77,6 +79,7 @@ const authenticateUser = async (req, res) => {
   }
 };
 
+/* CONFIRM USER */
 const confirmUser = async (req, res) => {
   const { token } = req.params;
   const userToConfirm = await User.findOne({ token });
@@ -104,6 +107,7 @@ const confirmUser = async (req, res) => {
   }
 };
 
+/* RESET PASSWORD */
 const resetPasswordUser = async (req, res) => {
   const { email } = req.body;
   const requestedUser = await User.findOne({ email });
@@ -136,6 +140,7 @@ const resetPasswordUser = async (req, res) => {
   }
 };
 
+/* VALIDATE TOKENS */
 const validateToken = async (req, res) => {
   const { token } = req.params;
   console.log(token);
@@ -155,6 +160,7 @@ const validateToken = async (req, res) => {
   }
 };
 
+/* SET NEW PASSWORD */
 const setNewPassword = async (req, res) => {
   const { token } = req.params;
   const { password } = req.body;
@@ -181,6 +187,7 @@ const setNewPassword = async (req, res) => {
   }
 };
 
+/* USER PROFILE */
 const profileUser = async (req, res) => {
   const { user } = req;
   res.json({

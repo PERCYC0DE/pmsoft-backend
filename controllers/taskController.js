@@ -1,11 +1,12 @@
 import Project from "../models/Project.js";
 import Task from "../models/Tasks.js";
 
-//=> Create a new Task
+/* CREATE A NEW TASK */
 const addTask = async (req, res) => {
   const { project } = req.body;
   const existsProject = await Project.findById(project);
 
+  // Validate that the project exists
   if (!existsProject) {
     const error = new Error("El proyecto no existe");
     return res.status(404).json({
@@ -14,7 +15,7 @@ const addTask = async (req, res) => {
     });
   }
 
-  // Validar si la persona que esta dando de alta la tarea fue el que creo el proyecto
+  // Validate project creator
   if (existsProject.owner.toString() !== req.user._id.toString()) {
     const error = new Error("No tienes los permisos para añadir tareas");
     return res.status(404).json({
@@ -37,10 +38,9 @@ const addTask = async (req, res) => {
   }
 };
 
-//=> Get one Task
+/* GET ONE TASK */
 const getTask = async (req, res) => {
   const { id } = req.params;
-
   const task = await Task.findById(id).populate("project");
 
   if (!task) {
@@ -65,10 +65,9 @@ const getTask = async (req, res) => {
   });
 };
 
-//=> Update one Task
+/* UPDATE ONE TASK */
 const updateTask = async (req, res) => {
   const { id } = req.params;
-
   const task = await Task.findById(id).populate("project");
 
   if (!task) {
@@ -104,10 +103,9 @@ const updateTask = async (req, res) => {
   }
 };
 
-//=> Delete one Task
+/* DELETE ONE TASK */
 const deleteTask = async (req, res) => {
   const { id } = req.params;
-
   const task = await Task.findById(id).populate("project");
 
   if (!task) {
@@ -128,7 +126,11 @@ const deleteTask = async (req, res) => {
   }
 
   try {
-    await task.deleteOne();
+    const project = await Project.findById(task.project);
+    project.tasks.pull(task._id);
+    // Encadenar todas las promesas
+    await Promise.allSettled([await project.save(), await task.deleteOne()]);
+
     res.json({
       status: "success",
       message: "Tarea eliminada correctamente.",
@@ -138,7 +140,45 @@ const deleteTask = async (req, res) => {
   }
 };
 
-//=> Change the status of one task
-const changeStatusTask = async (req, res) => {};
+/* CHANGE THE STATUS OF A TASK */
+const changeStatusTask = async (req, res) => {
+  const { id } = req.params;
+  const task = await Task.findById(id)
+    .populate("project")
+    .populate("completed");
+
+  if (!task) {
+    const error = new Error("La tarea consultada no existe.");
+    return res.status(404).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+
+  // Validate permissions
+  if (
+    task.project.owner.toString() !== req.user._id.toString() &&
+    !task.project.collaborators.some(
+      (collaborator) => collaborator._id.toString() === req.user._id.toString()
+    )
+  ) {
+    const error = new Error("No tiene permisos para realizar esta consulta.");
+    return res.status(403).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+
+  //Change the status of task
+  task.status = !task.status;
+  task.completed = req.user._id;
+  await task.save();
+
+  const taskSaved = await Task.findById(id)
+    .populate("project")
+    .populate("completed");
+
+  res.json(taskSaved);
+};
 
 export { addTask, getTask, updateTask, deleteTask, changeStatusTask };
