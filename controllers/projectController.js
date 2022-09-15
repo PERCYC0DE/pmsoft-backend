@@ -1,5 +1,4 @@
 import Project from "../models/Project.js";
-import Task from "../models/Tasks.js";
 import User from "../models/User.js";
 
 /* GET ALL PROJECTS */
@@ -248,25 +247,6 @@ const deleteCollaborator = async (req, res) => {
   res.json({ message: "Colaborador eliminado correctamente" });
 };
 
-// const getTasks = async (req, res) => {
-//   const { id } = req.params;
-
-//   const existsProject = await Project.findById(id);
-//   if (!project) {
-//     const error = new Error("El proyecto consultado no existe");
-//     return res.status(403).json({
-//       status: "error",
-//       message: error.message,
-//     });
-//   }
-
-//   const tasks = await Task.find().where("project").equals(id);
-//   res.json({
-//     status: "success",
-//     data: tasks,
-//   });
-// };
-
 export {
   getProjects,
   getOneProject,
@@ -276,5 +256,4 @@ export {
   addCollaborator,
   deleteCollaborator,
   searchCollaborator,
-  // getTasks,
 };

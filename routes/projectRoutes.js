@@ -8,7 +8,6 @@ import {
   addCollaborator,
   deleteCollaborator,
   searchCollaborator,
-  // getTasks,
 } from "../controllers/projectController.js";
 import checkAuth from "../middlewares/checkAuth.js";
 
@@ -22,7 +21,6 @@ router
   .delete(checkAuth, deleteProject);
 
 router
-  // .get("/tasks/:id", checkAuth, getTasks)
   .post("/collaborators", checkAuth, searchCollaborator)
   .post("/collaborators/:id", checkAuth, addCollaborator)
   .post("/delete-collaborator/:id", checkAuth, deleteCollaborator);
