@@ -29,10 +29,11 @@ const addTask = async (req, res) => {
     // Save ID in the project
     existsProject.tasks.push(taskSaved._id);
     await existsProject.save();
-    return res.json({
-      status: "success",
-      data: taskSaved,
-    });
+    // return res.json({
+    //   status: "success",
+    //   data: taskSaved,
+    // });
+    return res.json(taskSaved);
   } catch (error) {
     console.log(error);
   }
