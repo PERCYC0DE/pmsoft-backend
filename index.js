@@ -23,7 +23,7 @@ const corsOptions = {
     }
   },
 };
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
 app.use(cors());
 // Middlewares
 app.use(express.json());
