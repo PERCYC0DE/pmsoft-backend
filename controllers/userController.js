@@ -10,11 +10,12 @@ const registerUser = async (req, res) => {
   const existsUser = await User.findOne({ email });
 
   if (existsUser) {
-    console.log("Ya existe el usuario");
-    const error = new Error("User already exists");
+    const error = new Error(
+      "No se pudo crear la cuenta. Intente con otro correo por favor."
+    );
     return res.status(400).json({
       status: "error",
-      message: error.message,
+      data: error.message,
     });
   }
 
@@ -27,8 +28,7 @@ const registerUser = async (req, res) => {
     emailRegister({ email: user.email, name: user.name, token: user.token });
     res.status(201).json({
       status: "success",
-      message:
-        "Usuario creado correctamente. Revisa tu email para activar tu cuenta.",
+      data: "Usuario creado correctamente. Revisa tu email para activar tu cuenta.",
     });
   } catch (error) {
     console.log(error);
@@ -46,7 +46,7 @@ const authenticateUser = async (req, res) => {
     const error = new Error("Error al iniciar sesión. Revise sus credenciales");
     return res.status(404).json({
       status: "error",
-      message: error.message,
+      data: error.message,
     });
   }
 
@@ -87,7 +87,7 @@ const confirmUser = async (req, res) => {
     const error = new Error("El tóken enviado no es válido");
     return res.status(400).json({
       status: "error",
-      message: error.message,
+      data: error.message,
     });
   }
 
