@@ -29,6 +29,9 @@ app.use(cors());
 app.use(express.json());
 
 // Routing
+app.get("/", (req, res) => {
+  res.send("Welcome to my API PMSoft");
+});
 app.use("/api/users", userRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/tasks", tasksRoutes);
